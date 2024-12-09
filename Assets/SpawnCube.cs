@@ -3,13 +3,18 @@ using UnityEngine;
 
 public class SpawnCube : MonoBehaviour
 {
-    public GameObject spawnable;        // Common object to spawn
-    public GameObject rareSpawnable;   // Rare object to spawn
-    public float howOften = 2f;        // Time interval between spawns
+    public GameObject[] spawnables;  // Array of spawnable objects
+    public float howOften = 2f;      // Time interval between spawns
 
-    void Start()
+    private GameManager Manager;
+
+    private void Start()
     {
-        // Start the coroutine to spawn objects
+        GameObject managerObject = GameObject.FindWithTag("GameManager");
+        if (managerObject != null)
+        {
+            Manager = managerObject.GetComponent<GameManager>();
+        }
         StartCoroutine(SpawnObjects());
     }
 
@@ -17,16 +22,23 @@ public class SpawnCube : MonoBehaviour
     {
         while (true)
         {
-            // Generate a random number between 1 and 10
-            int randomNumber = Random.Range(1, 11);
+            // Get the round value from GameManager
+            int currentRound = Manager.round;
 
-            if (randomNumber < 2) // Rare spawn with 10% chance
+            // Adjust the maximum random number based on the current round, aiming for a max of 12 rounds
+            int spawnThreshold = Mathf.Clamp(10 + currentRound, 10, 20);  // Adjusts the threshold dynamically
+
+            // Generate a random number based on the round, with more diverse ranges as rounds progress
+            int randomNumber = Random.Range(1, spawnThreshold);
+
+            if (randomNumber <= 9)  // More common spawn
             {
-                Instantiate(rareSpawnable, transform.position, transform.rotation);
+                Instantiate(spawnables[0], transform.position, transform.rotation);
             }
-            else // Common spawn for other cases
+            else  // Rare spawn (the further into the game, the more diverse the spawnables)
             {
-                Instantiate(spawnable, transform.position, transform.rotation);
+                int spawnIndex = Mathf.Clamp(randomNumber - 9, 0, spawnables.Length - 1);
+                Instantiate(spawnables[spawnIndex], transform.position, transform.rotation);
             }
 
             // Wait for the specified interval before the next spawn

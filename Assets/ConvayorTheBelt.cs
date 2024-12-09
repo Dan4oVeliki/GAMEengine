@@ -1,10 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class ConvayorTheBelt : MonoBehaviour
 {
     public float speed;
+    public GameObject target;
     void Start()
     {
         
@@ -13,10 +15,9 @@ public class ConvayorTheBelt : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
     }
     private void OnTriggerStay(Collider other)
     {
-        other.transform.Translate(new Vector3(1f,0f,0f) * speed * Time.deltaTime);
+        other.transform.Translate(target.transform.localPosition * speed * Time.deltaTime);
     }
 }
